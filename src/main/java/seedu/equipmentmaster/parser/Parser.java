@@ -126,6 +126,10 @@ public class Parser {
      * @throws EquipmentMasterException If any argument is missing, invalid, or incorrectly formatted.
      */
     private static Command parseSetStatusByName(String fullCommand) throws EquipmentMasterException {
+        // Enforce strict order: n/ then q/ then s/
+        if (!fullCommand.matches(".*n/.*q/.*s/.*")) {
+            throw new EquipmentMasterException(MESSAGE_INVALID_SET_STATUS_FORMAT);
+        }
         String[] parts = fullCommand.split("n/|q/|s/");
         if (parts.length < 4) { // first part before n/, then name, quantity, status
             throw new EquipmentMasterException(MESSAGE_INVALID_SET_STATUS_FORMAT);
