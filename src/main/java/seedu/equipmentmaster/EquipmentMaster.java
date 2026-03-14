@@ -5,6 +5,7 @@ import seedu.equipmentmaster.commands.Command;
 import seedu.equipmentmaster.equipmentlist.EquipmentList;
 import seedu.equipmentmaster.exception.EquipmentMasterException;
 import seedu.equipmentmaster.parser.Parser;
+import seedu.equipmentmaster.semester.AcademicSemester;
 import seedu.equipmentmaster.storage.Storage;
 import seedu.equipmentmaster.ui.Ui;
 
@@ -12,13 +13,51 @@ public class EquipmentMaster {
     private static Storage storage;
     private Ui ui;
     private EquipmentList equipments;
+    private static AcademicSemester currentSystemSemester;
 
+    /**
+     * Initializes the application, loads system settings, and populates the equipment list.
+     *
+     * @param filePath The path to the equipment data file.
+     */
     public EquipmentMaster(String filePath) {
-        ui = new Ui();
-        storage = new Storage(filePath, ui);
+        this.ui = new Ui();
+        this.storage = new Storage(filePath, ui);
+
+        // Load the system time from settings.txt during startup
+        try {
+            String savedSemStr = storage.loadSettings();
+            currentSystemSemester = new AcademicSemester(savedSemStr);
+        } catch (EquipmentMasterException e) {
+            // Fallback to default if the saved settings are corrupted
+            try {
+                currentSystemSemester = new AcademicSemester("AY2024/25 Sem1");
+            } catch (EquipmentMasterException ignored) {
+                // Should not happen with valid hardcoded default
+            }
+        }
+
+        // Load equipment data
         this.equipments = new EquipmentList(storage.load());
     }
 
+    /**
+     * Updates the global current academic semester for the entire application.
+     *
+     * @param semester The new AcademicSemester to set as the current system time.
+     */
+    public static void setCurrentSemester(AcademicSemester semester) {
+        currentSystemSemester = semester;
+    }
+
+    /**
+     * Retrieves the current global system academic semester.
+     *
+     * @return The AcademicSemester currently set as the system time.
+     */
+    public static AcademicSemester getCurrentSemester() {
+        return currentSystemSemester;
+    }
 
     public void run() {
         ui.showWelcomeMessage();

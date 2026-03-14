@@ -1,11 +1,6 @@
 package seedu.equipmentmaster.parser;
 
-import seedu.equipmentmaster.commands.AddCommand;
-import seedu.equipmentmaster.commands.ByeCommand;
-import seedu.equipmentmaster.commands.Command;
-import seedu.equipmentmaster.commands.FindCommand;
-import seedu.equipmentmaster.commands.ListCommand;
-import seedu.equipmentmaster.commands.SetStatusCommand;
+import seedu.equipmentmaster.commands.*;
 import seedu.equipmentmaster.exception.EquipmentMasterException;
 
 
@@ -37,6 +32,8 @@ public class Parser {
             return parseSetStatus(fullCommand);
         case "find":
             return parseFind(fullCommand);
+        case "setSem":
+            return parseSetSem(fullCommand);
 
         default:
             throw new EquipmentMasterException(MESSAGE_INVALID_INPUT);
@@ -209,5 +206,24 @@ public class Parser {
         }
 
         return new SetStatusCommand(index, quantity, status);
+    }
+
+    /**
+     * Parses the arguments for the 'setSem' command and creates a SetSemCommand object.
+     *
+     * @param fullCommand The complete input string containing the 'setSem' command and the semester.
+     * @return A SetSemCommand object containing the target academic semester.
+     * @throws EquipmentMasterException If the semester argument is missing.
+     */
+    public static Command parseSetSem(String fullCommand) throws EquipmentMasterException {
+        String[] words = fullCommand.trim().split("\\s+", 2);
+
+        // Check if the user provided the semester string after "setSem"
+        if (words.length < 2 || words[1].trim().isEmpty()) {
+            throw new EquipmentMasterException("Please specify a semester. Usage: setSem AY[YYYY]/[YY] Sem[1/2]");
+        }
+
+        String rawSemester = words[1].trim();
+        return new SetSemCommand(rawSemester);
     }
 }

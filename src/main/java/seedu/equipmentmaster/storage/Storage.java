@@ -1,9 +1,11 @@
 package seedu.equipmentmaster.storage;
 
 import seedu.equipmentmaster.equipment.Equipment;
+import seedu.equipmentmaster.semester.AcademicSemester;
 import seedu.equipmentmaster.ui.Ui;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.Scanner;
 public class Storage {
     private String filePath;
     private Ui ui;
+    private String settingsPath = "data/settings.txt";
 
     /**
      * Constructor.
@@ -115,5 +118,45 @@ public class Storage {
             // Ignore corrupted lines
             return null;
         }
+    }
+
+    /**
+     * Saves the current system semester to the settings file.
+     * @param currentSem The semester to be saved.
+     */
+    public void saveSettings(AcademicSemester currentSem) {
+        try {
+            File file = new File(settingsPath);
+            File directory = file.getParentFile();
+            if (directory != null && !directory.exists()) {
+                directory.mkdirs();
+            }
+
+            try (FileWriter writer = new FileWriter(settingsPath)) {
+                writer.write(currentSem.toString());
+            }
+        } catch (IOException e) {
+            ui.showMessage("Error saving settings: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads the system semester from the settings file.
+     * @return The saved AcademicSemester, or a default value if not found.
+     */
+    public String loadSettings() {
+        File file = new File(settingsPath);
+        if (!file.exists()) {
+            return "AY2024/25 Sem1"; // Default value
+        }
+
+        try (Scanner scanner = new Scanner(file)) {
+            if (scanner.hasNextLine()) {
+                return scanner.nextLine().trim();
+            }
+        } catch (FileNotFoundException e) {
+            // Fallback to default
+        }
+        return "AY2024/25 Sem1";
     }
 }
